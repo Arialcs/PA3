@@ -1,0 +1,6 @@
+@PA3_HostAddress = http://localhost:5093
+
+GET {{PA3_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###
