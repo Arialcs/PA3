@@ -1,7 +1,7 @@
 ﻿import requests
 import random
 
-API_URL = "http://localhost:5093/api/quotes"  # Update with your actual API URL
+API_URL = "http://localhost:5093/api/quotes"  # api routes
 
 def load_quotes_from_file(filename):
     """Load quotes from a text file and add them to the API."""

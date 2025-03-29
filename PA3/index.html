@@ -30,6 +30,16 @@
             margin-bottom: 20px;
         }
 
+        .tag {
+            display: inline-block;
+            background-color: #ddd;
+            color: #333;
+            padding: 3px 8px;
+            margin: 2px;
+            border-radius: 5px;
+            font-size: 14px;
+        }
+
         .quote {
             padding: 15px;
             margin: 10px 0;
@@ -108,33 +118,50 @@
     </style>
 </head>
 <body>
-
     <div class="container">
         <h2>Add a Quote</h2>
         <textarea id="quoteText" placeholder="Enter quote text" rows="4"></textarea>
         <input id="quoteAuthor" placeholder="Author (optional)">
+        <input id="quoteTags" placeholder="Enter tags (comma-separated)">
+
         <button onclick="addQuote()">Add Quote</button>
 
         <h2>Quotes</h2>
+        <button onclick="fetchMostLikedQuotes()">Show Most Liked Quotes</button>
         <div id="quotesContainer"></div>
     </div>
 
     <script>
-        const apiUrl = "http://localhost:5093/api/quotes"; // Update with your API URL
+        const apiUrl = "http://localhost:5093/api/quotes"; // API URL
+        const mostLikedApiUrl = "http://localhost:5093/api/quotes/most-liked"; // API URL for most liked quotes
 
         // Fetch and display quotes
         async function fetchQuotes() {
             const res = await fetch(apiUrl);
             const quotes = await res.json();
+            displayQuotes(quotes);
+        }
+
+        // Fetch and display the most liked quotes
+        async function fetchMostLikedQuotes() {
+            const res = await fetch(mostLikedApiUrl);
+            const quotes = await res.json();
+            displayQuotes(quotes);
+        }
+
+        // Function to display quotes in the container
+        function displayQuotes(quotes) {
             const container = document.getElementById("quotesContainer");
             container.innerHTML = "";
             quotes.forEach(q => {
+                const tags = q.tags ? q.tags.map(tag => `<span class="tag">${tag.name}</span>`).join(', ') : "No Tags";
                 container.innerHTML += `
                         <div class="quote" id="quote-${q.id}">
                             <p>"${q.text}"</p>
                             <p class="quote-author">- <strong>${q.author || "Unknown"}</strong></p>
+                            <p>Tags: ${tags}</p>
                             <p>Likes: ${q.likes} <button onclick="likeQuote(${q.id})">👍 Like</button></p>
-                            <button class="edit-btn" onclick="editQuote(${q.id}, '${q.text}', '${q.author}')">✏️ Edit</button>
+                            <button class="edit-btn" onclick="editQuote(${q.id}, '${q.text}', '${q.author}', '${q.tags}')">✏️ Edit</button>
                             <button class="delete-btn" onclick="deleteQuote(${q.id})">🗑️ Delete</button>
                         </div>
                     `;
@@ -145,16 +172,26 @@
         async function addQuote() {
             const text = document.getElementById("quoteText").value;
             const author = document.getElementById("quoteAuthor").value;
+            const tagsInput = document.getElementById("quoteTags").value;
+
             if (!text) return alert("Quote text is required!");
 
+            // Convert tags to array
+            const tags = tagsInput.split(",").map(tag => tag.trim()).filter(tag => tag !== "");
+
+            // Send tags as part of the POST request
             await fetch(apiUrl, {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({ text, author })
+                body: JSON.stringify({ text, author, tags: tags.map(tag => ({ name: tag })) }) // Send tags as objects with a 'name' property
             });
+
+            // Reset the input fields
             document.getElementById("quoteText").value = "";
             document.getElementById("quoteAuthor").value = "";
-            fetchQuotes();
+            document.getElementById("quoteTags").value = "";
+
+            fetchQuotes(); // Refresh the list of quotes
         }
 
         // Like a quote
@@ -164,18 +201,23 @@
         }
 
         // Edit a quote
-        function editQuote(id, currentText, currentAuthor) {
+        async function editQuote(id, currentText, currentAuthor, currentTags) {
             const newText = prompt("Edit Quote Text:", currentText);
             const newAuthor = prompt("Edit Author:", currentAuthor);
+            const newTags = prompt("Edit Tags (comma-separated):", currentTags);
+
             if (newText) {
+                const tagsArray = newTags.split(",").map(tag => tag.trim()).filter(tag => tag !== "");
+
+                // Update the quote and send tags as objects with a 'name' property
                 fetch(`${apiUrl}/${id}`, {
                     method: "PUT",
                     headers: { "Content-Type": "application/json" },
-                    body: JSON.stringify({ id, text: newText, author: newAuthor })
+                    body: JSON.stringify({ id, text: newText, author: newAuthor, tags: tagsArray.map(tag => ({ name: tag })) })
                 })
                     .then(response => {
                         if (response.ok) {
-                            fetchQuotes();
+                            fetchQuotes(); // Refresh the list of quotes
                         } else {
                             alert("Error updating quote!");
                         }
@@ -193,6 +235,5 @@
 
         fetchQuotes(); // Load quotes on page load
     </script>
-
 </body>
 </html>

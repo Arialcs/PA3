@@ -1,0 +1,88 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tag Manager</title>
+    <script>
+        const apiBaseUrl = "http://localhost:5093/api/tags"; // Change port if needed
+
+        // Fetch and display tags
+        async function fetchTags() {
+            try {
+                const response = await fetch(apiBaseUrl);
+                const tags = await response.json();
+                const tagList = document.getElementById("tag-list");
+                tagList.innerHTML = "";
+
+                tags.forEach(tag => {
+                    const li = document.createElement("li");
+                    li.textContent = tag.name;
+                    li.setAttribute("data-id", tag.id);
+
+                    // Delete button
+                    const deleteBtn = document.createElement("button");
+                    deleteBtn.textContent = "❌";
+                    deleteBtn.onclick = () => deleteTag(tag.id);
+
+                    li.appendChild(deleteBtn);
+                    tagList.appendChild(li);
+                });
+            } catch (error) {
+                console.error("Error fetching tags:", error);
+            }
+        }
+
+        // Add a new tag
+        async function addTag() {
+            const tagName = document.getElementById("tag-name").value.trim();
+            if (!tagName) return alert("Tag name cannot be empty!");
+
+            try {
+                const response = await fetch(apiBaseUrl, {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({ name: tagName })
+                });
+
+                if (response.ok) {
+                    document.getElementById("tag-name").value = "";
+                    fetchTags(); // Refresh the tag list
+                } else {
+                    const errorData = await response.json();
+                    alert(errorData.message || "Error adding tag.");
+                }
+            } catch (error) {
+                console.error("Error adding tag:", error);
+            }
+        }
+
+        // Delete a tag
+        async function deleteTag(id) {
+            if (!confirm("Are you sure you want to delete this tag?")) return;
+
+            try {
+                const response = await fetch(`${apiBaseUrl}/${id}`, { method: "DELETE" });
+
+                if (response.ok) {
+                    fetchTags(); // Refresh the tag list
+                } else {
+                    alert("Error deleting tag.");
+                }
+            } catch (error) {
+                console.error("Error deleting tag:", error);
+            }
+        }
+
+        // Load tags when the page loads
+        window.onload = fetchTags;
+    </script>
+</head>
+<body>
+    <h2>Tag Manager</h2>
+    <input type="text" id="tag-name" placeholder="Enter tag name">
+    <button onclick="addTag()">Add Tag</button>
+
+    <ul id="tag-list"></ul>
+</body>
+</html>

@@ -86,6 +86,21 @@ public class QuotesController : ControllerBase
     {
         return await _context.Quotes.OrderByDescending(q => q.Likes).Take(count).ToListAsync();
     }
+    // GET: api/quotes/most-liked
+    [HttpGet("most-liked")]
+    public async Task<ActionResult<IEnumerable<Quote>>> GetMostLikedQuotes([FromQuery] int count = 10)
+    {
+        // Fetch the top 'count' most liked quotes from the database
+        var mostLikedQuotes = await _context.Quotes
+            .OrderByDescending(q => q.Likes)  // Sort quotes by 'Likes' in descending order
+            .Take(count)  // Take the specified number of top quotes
+            .Include(q => q.QuoteTags)  // Optional: Include the related tags for each quote
+            .ThenInclude(qt => qt.Tag)
+            .ToListAsync();
+
+        return Ok(mostLikedQuotes);  // Return the most liked quotes
+    }
+
 
     // DELETE: api/quotes/{id}
     [HttpDelete("{id}")]
