@@ -10,19 +10,11 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Configuration.AddJsonFile("appsettings.json", optional: false, reloadOnChange: true);
 
 // Get the database provider configuration from app settings
-var useInMemoryDatabase = builder.Configuration.GetValue<bool>("UseInMemoryDatabase");
+//var useInMemoryDatabase = builder.Configuration.GetValue<bool>("UseInMemoryDatabase");
 
-// Conditionally register the database provider
-if (useInMemoryDatabase)
-{
-    builder.Services.AddDbContext<QuoteDbContext>(options =>
-        options.UseInMemoryDatabase("Pa3_8843688"));  // In-Memory Database
-}
-else
-{
-    builder.Services.AddDbContext<QuoteDbContext>(options =>
+ builder.Services.AddDbContext<QuoteDbContext>(options =>
         options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));  // SQL Server
-}
+
 
 // Add controllers for Web API
 builder.Services.AddControllers();
