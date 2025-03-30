@@ -50,7 +50,7 @@ public class QuotesController : ControllerBase
         var existingQuote = await _context.Quotes.FindAsync(id);
         if (existingQuote == null) return NotFound("Quote not found.");
 
-        // Optionally, you can update individual fields
+       
         existingQuote.Text = quote.Text; // Update quote text
         existingQuote.Author = quote.Author; // Update author
 

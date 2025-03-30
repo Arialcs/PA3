@@ -1,120 +1,85 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Http.HttpResults;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using PA3.Models;
 using QuoteAPI.Models;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 
 namespace QuoteAPI.Controllers
 {
-    [Route("api/tags")]
+    [Route("api/[controller]")]
     [ApiController]
     public class TagController : ControllerBase
     {
         private readonly QuoteDbContext _context;
 
-        // Constructor for Dependency Injection
         public TagController(QuoteDbContext context)
         {
             _context = context;
         }
 
-        // GET: api/tags
+        // GET: api/tag
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<Tag>>> GetTags()
+        public async Task<IActionResult> GetAllTags()
         {
-            // Retrieve all tags from the database
-            return await _context.Tags.ToListAsync();
+            var tags = await _context.Tags.ToListAsync();
+            return Ok(tags);
         }
 
-        // GET: api/tags/{id}
-        [HttpGet("{id}")]
-        public async Task<ActionResult<Tag>> GetTag(int id)
-        {
-            // Retrieve a single tag by ID
-            var tag = await _context.Tags.FindAsync(id);
-
-            if (tag == null)
-            {
-                return NotFound();
-            }
-
-            return tag;
-        }
-
-        // POST: api/tags
+        // POST: api/tag
         [HttpPost]
-        public async Task<ActionResult<Tag>> AddTag([FromBody] Tag tag)
+        public async Task<IActionResult> CreateTag([FromBody] Tag tag)
         {
-            // Prevent duplicate tags
-            var existingTag = await _context.Tags.FirstOrDefaultAsync(t => t.Name == tag.Name);
-            if (existingTag != null)
-            {
-                return Conflict(new { message = "Tag already exists" });
-            }
+            if (string.IsNullOrEmpty(tag.Name))
+                return BadRequest("Tag name is required.");
 
-            // Add new tag to the database
             _context.Tags.Add(tag);
             await _context.SaveChangesAsync();
 
-            return CreatedAtAction(nameof(GetTag), new { id = tag.Id }, tag);
+            return CreatedAtAction(nameof(GetAllTags), new { id = tag.Id }, tag);
         }
 
-        // PUT: api/tags/{id}
-        [HttpPut("{id}")]
-        public async Task<IActionResult> UpdateTag(int id, [FromBody] Tag tag)
+        // POST: api/tag/{quoteId}/add
+        [HttpPost("{quoteId}/add")]
+        public async Task<IActionResult> AddTagToQuote(int quoteId, [FromBody] TagRequest tagRequest)
         {
-            // Ensure tag IDs match
-            if (id != tag.Id)
-            {
-                return BadRequest();
-            }
+            if (tagRequest == null || string.IsNullOrEmpty(tagRequest.Name))
+                return BadRequest("Tag name is required.");
 
-            _context.Entry(tag).State = EntityState.Modified;
+            // Find the quote by ID
+            var quote = await _context.Quotes.FirstOrDefaultAsync(q => q.Id == quoteId);
+            if (quote == null)
+                return NotFound("Quote not found.");
 
-            try
-            {
-                await _context.SaveChangesAsync();
-            }
-            catch (DbUpdateConcurrencyException)
-            {
-                if (!TagExists(id))
-                {
-                    return NotFound();
-                }
-                else
-                {
-                    throw;
-                }
-            }
-
-            return NoContent();
-        }
-
-        // DELETE: api/tags/{id}
-        [HttpDelete("{id}")]
-        public async Task<IActionResult> DeleteTag(int id)
-        {
-            var tag = await _context.Tags.FindAsync(id);
+            // Check if the tag exists
+            var tag = await _context.Tags.FirstOrDefaultAsync(t => t.Name == tagRequest.Name);
             if (tag == null)
             {
-                return NotFound();
+                // Create new tag if it doesn't exist
+                tag = new Tag { Name = tagRequest.Name };
+                _context.Tags.Add(tag);
+                await _context.SaveChangesAsync();
             }
 
-            // Remove the tag from the QuoteTags join table
-            var quoteTags = _context.QuoteTags.Where(qt => qt.TagId == id);
-            _context.QuoteTags.RemoveRange(quoteTags);
+            // Add the tag to the quote via the QuoteTag relationship
+            var quoteTag = await _context.QuoteTags
+                .FirstOrDefaultAsync(qt => qt.QuoteId == quoteId && qt.TagId == tag.Id);
 
-            // Remove the tag from the Tags table
-            _context.Tags.Remove(tag);
-            await _context.SaveChangesAsync();
+            if (quoteTag == null)
+            {
+                quoteTag = new QuoteTag
+                {
+                    QuoteId = quoteId,
+                    TagId = tag.Id
+                };
+                _context.QuoteTags.Add(quoteTag);
+                await _context.SaveChangesAsync();
+            }
 
-            return NoContent();
-        }
-
-        private bool TagExists(int id)
-        {
-            return _context.Tags.Any(e => e.Id == id);
+            return Ok(new { message = "Tag added to quote successfully." });
         }
     }
 }

@@ -1,4 +1,4 @@
-﻿import requests
+import requests
 import random
 
 API_URL = "http://localhost:5093/api/quotes"  # api routes
@@ -71,3 +71,4 @@ def main():
 
 if __name__ == "__main__":
     main()
+

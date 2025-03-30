@@ -5,16 +5,50 @@ VisualStudioVersion = 17.12.35707.178
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PA3", "PA3\PA3.csproj", "{222FBCBC-CED1-42C9-AC96-EB68D2D21C4B}"
 EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Website", "Website\Website.vcxproj", "{F265DDEE-B5E3-4304-B89A-082228E848A6}"
+EndProject
+Project("{888888A0-9F3D-457C-B088-3A5042F75D52}") = "client", "client\client.pyproj", "{1D649C91-1698-4ED4-BEBC-D21D7DD0F648}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
+		Debug|x64 = Debug|x64
+		Debug|x86 = Debug|x86
 		Release|Any CPU = Release|Any CPU
+		Release|x64 = Release|x64
+		Release|x86 = Release|x86
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
 		{222FBCBC-CED1-42C9-AC96-EB68D2D21C4B}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{222FBCBC-CED1-42C9-AC96-EB68D2D21C4B}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{222FBCBC-CED1-42C9-AC96-EB68D2D21C4B}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{222FBCBC-CED1-42C9-AC96-EB68D2D21C4B}.Debug|x64.Build.0 = Debug|Any CPU
+		{222FBCBC-CED1-42C9-AC96-EB68D2D21C4B}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{222FBCBC-CED1-42C9-AC96-EB68D2D21C4B}.Debug|x86.Build.0 = Debug|Any CPU
 		{222FBCBC-CED1-42C9-AC96-EB68D2D21C4B}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{222FBCBC-CED1-42C9-AC96-EB68D2D21C4B}.Release|Any CPU.Build.0 = Release|Any CPU
+		{222FBCBC-CED1-42C9-AC96-EB68D2D21C4B}.Release|x64.ActiveCfg = Release|Any CPU
+		{222FBCBC-CED1-42C9-AC96-EB68D2D21C4B}.Release|x64.Build.0 = Release|Any CPU
+		{222FBCBC-CED1-42C9-AC96-EB68D2D21C4B}.Release|x86.ActiveCfg = Release|Any CPU
+		{222FBCBC-CED1-42C9-AC96-EB68D2D21C4B}.Release|x86.Build.0 = Release|Any CPU
+		{F265DDEE-B5E3-4304-B89A-082228E848A6}.Debug|Any CPU.ActiveCfg = Debug|x64
+		{F265DDEE-B5E3-4304-B89A-082228E848A6}.Debug|Any CPU.Build.0 = Debug|x64
+		{F265DDEE-B5E3-4304-B89A-082228E848A6}.Debug|x64.ActiveCfg = Debug|x64
+		{F265DDEE-B5E3-4304-B89A-082228E848A6}.Debug|x64.Build.0 = Debug|x64
+		{F265DDEE-B5E3-4304-B89A-082228E848A6}.Debug|x86.ActiveCfg = Debug|Win32
+		{F265DDEE-B5E3-4304-B89A-082228E848A6}.Debug|x86.Build.0 = Debug|Win32
+		{F265DDEE-B5E3-4304-B89A-082228E848A6}.Release|Any CPU.ActiveCfg = Release|x64
+		{F265DDEE-B5E3-4304-B89A-082228E848A6}.Release|Any CPU.Build.0 = Release|x64
+		{F265DDEE-B5E3-4304-B89A-082228E848A6}.Release|x64.ActiveCfg = Release|x64
+		{F265DDEE-B5E3-4304-B89A-082228E848A6}.Release|x64.Build.0 = Release|x64
+		{F265DDEE-B5E3-4304-B89A-082228E848A6}.Release|x86.ActiveCfg = Release|Win32
+		{F265DDEE-B5E3-4304-B89A-082228E848A6}.Release|x86.Build.0 = Release|Win32
+		{1D649C91-1698-4ED4-BEBC-D21D7DD0F648}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{1D649C91-1698-4ED4-BEBC-D21D7DD0F648}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{1D649C91-1698-4ED4-BEBC-D21D7DD0F648}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{1D649C91-1698-4ED4-BEBC-D21D7DD0F648}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{1D649C91-1698-4ED4-BEBC-D21D7DD0F648}.Release|x64.ActiveCfg = Release|Any CPU
+		{1D649C91-1698-4ED4-BEBC-D21D7DD0F648}.Release|x86.ActiveCfg = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

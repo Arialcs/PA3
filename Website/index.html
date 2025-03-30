@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Quotes SPA</title>
     <style>
-        /* Global Styles */
+
         body {
             font-family: 'Arial', sans-serif;
             background-color: #f5f5f5;
@@ -115,6 +115,14 @@
             font-style: italic;
             color: #888;
         }
+
+        .form-container {
+            margin-top: 30px;
+            padding: 20px;
+            background-color: #f9f9f9;
+            border-radius: 8px;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+        }
     </style>
 </head>
 <body>
@@ -129,6 +137,20 @@
         <h2>Quotes</h2>
         <button onclick="fetchMostLikedQuotes()">Show Most Liked Quotes</button>
         <div id="quotesContainer"></div>
+
+        <!-- Form for adding tags to a selected quote -->
+        <div class="form-container">
+            <h2>Add Tags to Quote</h2>
+            <label for="quoteSelect">Select a Quote:</label>
+            <select id="quoteSelect">
+                <option value="">-- Select a Quote --</option>
+            </select>
+
+            <label for="tagsInput">Enter Tags (comma-separated):</label>
+            <input id="tagsInput" placeholder="Enter tags (comma-separated)">
+
+            <button onclick="addTagsToQuote()">Add Tags</button>
+        </div>
     </div>
 
     <script>
@@ -152,7 +174,10 @@
         // Function to display quotes in the container
         function displayQuotes(quotes) {
             const container = document.getElementById("quotesContainer");
+            const quoteSelect = document.getElementById("quoteSelect");
             container.innerHTML = "";
+            quoteSelect.innerHTML = '<option value="">-- Select a Quote --</option>';
+
             quotes.forEach(q => {
                 const tags = q.tags ? q.tags.map(tag => `<span class="tag">${tag.name}</span>`).join(', ') : "No Tags";
                 container.innerHTML += `
@@ -165,6 +190,12 @@
                             <button class="delete-btn" onclick="deleteQuote(${q.id})">🗑️ Delete</button>
                         </div>
                     `;
+
+                // Add quote options to the select dropdown
+                const option = document.createElement("option");
+                option.value = q.id;
+                option.textContent = `"${q.text}" - ${q.author || "Unknown"}`;
+                quoteSelect.appendChild(option);
             });
         }
 
@@ -176,22 +207,19 @@
 
             if (!text) return alert("Quote text is required!");
 
-            // Convert tags to array
             const tags = tagsInput.split(",").map(tag => tag.trim()).filter(tag => tag !== "");
 
-            // Send tags as part of the POST request
             await fetch(apiUrl, {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({ text, author, tags: tags.map(tag => ({ name: tag })) }) // Send tags as objects with a 'name' property
+                body: JSON.stringify({ text, author, tags: tags.map(tag => ({ name: tag })) })
             });
 
-            // Reset the input fields
             document.getElementById("quoteText").value = "";
             document.getElementById("quoteAuthor").value = "";
             document.getElementById("quoteTags").value = "";
 
-            fetchQuotes(); // Refresh the list of quotes
+            fetchQuotes();
         }
 
         // Like a quote
@@ -209,7 +237,6 @@
             if (newText) {
                 const tagsArray = newTags.split(",").map(tag => tag.trim()).filter(tag => tag !== "");
 
-                // Update the quote and send tags as objects with a 'name' property
                 fetch(`${apiUrl}/${id}`, {
                     method: "PUT",
                     headers: { "Content-Type": "application/json" },
@@ -217,7 +244,7 @@
                 })
                     .then(response => {
                         if (response.ok) {
-                            fetchQuotes(); // Refresh the list of quotes
+                            fetchQuotes();
                         } else {
                             alert("Error updating quote!");
                         }
@@ -231,6 +258,27 @@
                 await fetch(`${apiUrl}/${id}`, { method: "DELETE" });
                 fetchQuotes();
             }
+        }
+
+        // Add tags to a selected quote
+        async function addTagsToQuote() {
+            const selectedQuoteId = document.getElementById("quoteSelect").value;
+            const tagsInput = document.getElementById("tagsInput").value;
+
+            if (!selectedQuoteId) return alert("Please select a quote!");
+            if (!tagsInput) return alert("Please enter tags!");
+
+            const tags = tagsInput.split(",").map(tag => tag.trim()).filter(tag => tag !== "");
+
+            // Send the POST request to add tags to the selected quote
+            await fetch(`${apiUrl}/${selectedQuoteId}/tags`, {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ tags: tags.map(tag => ({ name: tag })) })
+            });
+
+            // Refresh quotes to show updated tags
+            fetchQuotes();
         }
 
         fetchQuotes(); // Load quotes on page load
